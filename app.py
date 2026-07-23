@@ -1,0 +1,456 @@
+"""
+============================================
+ResearchRadar — Research Paper Assistant
+============================================
+A simple Flask server that provides:
+  - User authentication (register, login, logout)
+  - PDF upload and summarization
+  - ArXiv paper search
+  - Startup idea analysis using LLM API
+  - User paper history & creator details
+
+Database: SQLite (auto-created on first run)
+============================================
+"""
+
+import os
+import json
+import sqlite3
+import shutil
+import requests
+import xml.etree.ElementTree as ET
+from datetime import datetime
+
+from flask import Flask, request, jsonify, session, render_template
+from flask_cors import CORS
+from werkzeug.security import generate_password_hash, check_password_hash
+from dotenv import load_dotenv
+from openai import OpenAI
+import PyPDF2
+
+# Load environment variables from .env file
+load_dotenv()
+
+# ============================================
+# APP CONFIGURATION
+# ============================================
+app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-me')
+CORS(app)
+
+# Ensure images folder and copy login background if generated
+IMAGES_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
+os.makedirs(IMAGES_FOLDER, exist_ok=True)
+generated_img = r'C:\Users\ACER\.gemini\antigravity\brain\eb19b3a3-0711-4ed8-8cbd-1eaf5eb482a6\login_background_1784831648902.jpg'
+dest_img = os.path.join(IMAGES_FOLDER, 'login_bg.jpg')
+if os.path.exists(generated_img) and not os.path.exists(dest_img):
+    try:
+        shutil.copy(generated_img, dest_img)
+    except Exception:
+        pass
+
+# Upload folder for PDFs
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# OpenAI client setup (works with any OpenAI-compatible API)
+ai_client = OpenAI(
+    api_key=os.getenv('OPENAI_API_KEY', ''),
+    base_url=os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1')
+)
+AI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+
+DATABASE = os.path.join(os.path.dirname(__file__), 'database.db')
+
+
+# ============================================
+# DATABASE SETUP
+# ============================================
+def get_db():
+    """Get a database connection with row factory enabled."""
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    """Create tables if they don't exist."""
+    conn = get_db()
+    conn.executescript('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS papers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            filename TEXT NOT NULL,
+            summary TEXT,
+            key_points TEXT,
+            terms TEXT,
+            uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    ''')
+    conn.commit()
+    conn.close()
+
+
+# Initialize database on startup
+init_db()
+
+
+# ============================================
+# ROUTES: Page Serving
+# ============================================
+@app.route('/')
+def index():
+    """Serve the single-page frontend."""
+    return render_template('index.html')
+
+
+# ============================================
+# ROUTES: Authentication
+# ============================================
+@app.route('/api/register', methods=['POST'])
+def register():
+    """Register a new user account."""
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    # Validate inputs
+    if not name or not email or not password:
+        return jsonify({'error': 'All fields are required'}), 400
+    if len(password) < 6:
+        return jsonify({'error': 'Password must be at least 6 characters'}), 400
+
+    # Check if email already exists
+    conn = get_db()
+    existing = conn.execute('SELECT id FROM users WHERE email = ?', (email,)).fetchone()
+    if existing:
+        conn.close()
+        return jsonify({'error': 'Email already registered'}), 409
+
+    # Create user with hashed password
+    hashed = generate_password_hash(password)
+    conn.execute('INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
+                 (name, email, hashed))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': 'Account created successfully'}), 201
+
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    """Authenticate user and create a session."""
+    data = request.get_json()
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '')
+
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required'}), 400
+
+    # Find user by email
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+    conn.close()
+
+    if not user or not check_password_hash(user['password'], password):
+        return jsonify({'error': 'Invalid email or password'}), 401
+
+    # Store user ID in session
+    session['user_id'] = user['id']
+
+    return jsonify({
+        'message': 'Login successful',
+        'user': {
+            'id': user['id'],
+            'name': user['name'],
+            'email': user['email'],
+            'joined': user['created_at']
+        }
+    })
+
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    """Clear the user session."""
+    session.clear()
+    return jsonify({'message': 'Logged out'})
+
+
+@app.route('/api/me')
+def me():
+    """Check if user is logged in and return their info."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    conn = get_db()
+    user = conn.execute('SELECT * FROM users WHERE id = ?', (user_id,)).fetchone()
+    conn.close()
+
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    return jsonify({
+        'user': {
+            'id': user['id'],
+            'name': user['name'],
+            'email': user['email'],
+            'joined': user['created_at']
+        }
+    })
+
+
+# ============================================
+# ROUTES: PDF Upload & AI Summary
+# ============================================
+@app.route('/api/upload', methods=['POST'])
+def upload_paper():
+    """Upload a PDF, extract text, and generate AI summary."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Please log in first'}), 401
+
+    # Check if file was provided
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
+    if file.filename == '' or not file.filename.lower().endswith('.pdf'):
+        return jsonify({'error': 'Please upload a valid PDF file'}), 400
+
+    # Save the uploaded PDF
+    filename = f"{user_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}_{file.filename}"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(filepath)
+
+    # Extract text from PDF using PyPDF2
+    try:
+        text = extract_pdf_text(filepath)
+        if len(text.strip()) < 50:
+            return jsonify({'error': 'Could not extract enough text from the PDF'}), 400
+    except Exception as e:
+        return jsonify({'error': f'Error reading PDF: {str(e)}'}), 400
+
+    # Send extracted text to AI for summarization
+    try:
+        result = generate_summary(text)
+    except Exception as e:
+        return jsonify({'error': f'AI analysis failed: {str(e)}'}), 500
+
+    # Save results to database
+    conn = get_db()
+    conn.execute(
+        'INSERT INTO papers (user_id, filename, summary, key_points, terms) VALUES (?, ?, ?, ?, ?)',
+        (user_id, file.filename, result.get('summary', ''),
+         json.dumps(result.get('key_points', [])),
+         json.dumps(result.get('terms', [])))
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify(result)
+
+
+def extract_pdf_text(filepath):
+    """Extract text content from a PDF file using PyPDF2."""
+    text = ''
+    with open(filepath, 'rb') as f:
+        reader = PyPDF2.PdfReader(f)
+        for page in reader.pages:
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + '\n'
+    return text
+
+
+def generate_summary(text):
+    """Send text to the AI API and get a structured summary."""
+    # Truncate text to avoid token limits (roughly 12,000 chars ≈ 3,000 tokens)
+    truncated = text[:12000]
+
+    prompt = """Analyze this research paper text and return a JSON object with these fields:
+    - "summary": A clear 2-3 paragraph summary of the paper
+    - "key_points": An array of 5-7 key points or findings (strings)
+    - "terms": An array of 4-6 important technical terms, each as {"term": "...", "definition": "..."}
+
+    Return ONLY valid JSON, no markdown formatting or extra text.
+
+    Paper text:
+    """ + truncated
+
+    response = ai_client.chat.completions.create(
+        model=AI_MODEL,
+        messages=[
+            {'role': 'system', 'content': 'You are a research paper analyst. Always respond with valid JSON only.'},
+            {'role': 'user', 'content': prompt}
+        ],
+        temperature=0.3
+    )
+
+    # Parse AI response as JSON
+    content = response.choices[0].message.content.strip()
+    # Remove markdown code fences if present
+    if content.startswith('```'):
+        content = content.split('\n', 1)[1]  # remove first line
+        content = content.rsplit('```', 1)[0]  # remove last fence
+    return json.loads(content)
+
+
+# ============================================
+# ROUTES: Paper Search (ArXiv API)
+# ============================================
+@app.route('/api/search')
+def search_papers():
+    """Search for papers on ArXiv using keywords."""
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify({'error': 'Please provide a search query'}), 400
+
+    try:
+        results = search_arxiv(query)
+        return jsonify({'results': results})
+    except Exception as e:
+        return jsonify({'error': f'Search failed: {str(e)}'}), 500
+
+
+def search_arxiv(query, max_results=10):
+    """Query the ArXiv API and parse the Atom XML response."""
+    url = 'http://export.arxiv.org/api/query'
+    params = {
+        'search_query': f'all:{query}',
+        'start': 0,
+        'max_results': max_results,
+        'sortBy': 'relevance',
+        'sortOrder': 'descending'
+    }
+
+    response = requests.get(url, params=params, timeout=15)
+    response.raise_for_status()
+
+    # Parse the Atom XML feed
+    root = ET.fromstring(response.text)
+    ns = {'atom': 'http://www.w3.org/2005/Atom'}
+
+    papers = []
+    for entry in root.findall('atom:entry', ns):
+        # Extract authors (may be multiple)
+        authors = [a.find('atom:name', ns).text
+                    for a in entry.findall('atom:author', ns)]
+
+        # Get the abstract and truncate it for display
+        abstract = entry.find('atom:summary', ns).text.strip()
+        if len(abstract) > 300:
+            abstract = abstract[:300] + '...'
+
+        papers.append({
+            'title': entry.find('atom:title', ns).text.strip().replace('\n', ' '),
+            'authors': ', '.join(authors[:3]) + ('...' if len(authors) > 3 else ''),
+            'abstract': abstract,
+            'link': entry.find('atom:id', ns).text.strip()
+        })
+
+    return papers
+
+
+# ============================================
+# ROUTES: Startup Idea Analyzer
+# ============================================
+@app.route('/api/analyze', methods=['POST'])
+def analyze_idea():
+    """Analyze a startup/research idea using AI."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Please log in first'}), 401
+
+    data = request.get_json()
+    idea = data.get('idea', '').strip()
+    if not idea:
+        return jsonify({'error': 'Please describe your idea'}), 400
+
+    try:
+        result = evaluate_startup_idea(idea)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': f'Analysis failed: {str(e)}'}), 500
+
+
+def evaluate_startup_idea(idea):
+    """Send idea to AI and get a structured startup evaluation."""
+    prompt = f"""Evaluate this startup/research idea and return a JSON object with these fields:
+    - "innovation_score": integer 0-10
+    - "feasibility_score": integer 0-10
+    - "market_score": integer 0-10
+    - "overall_score": integer 0-10
+    - "feasibility": A 2-3 sentence feasibility assessment
+    - "market_potential": A 2-3 sentence market potential assessment
+    - "suggestions": An array of 4-5 actionable suggestions (strings)
+
+    Return ONLY valid JSON, no markdown formatting or extra text.
+
+    Idea: {idea}"""
+
+    response = ai_client.chat.completions.create(
+        model=AI_MODEL,
+        messages=[
+            {'role': 'system', 'content': 'You are a startup evaluator and innovation analyst. Always respond with valid JSON only.'},
+            {'role': 'user', 'content': prompt}
+        ],
+        temperature=0.4
+    )
+
+    content = response.choices[0].message.content.strip()
+    # Remove markdown code fences if present
+    if content.startswith('```'):
+        content = content.split('\n', 1)[1]
+        content = content.rsplit('```', 1)[0]
+    return json.loads(content)
+
+
+# ============================================
+# ROUTES: User's Paper History
+# ============================================
+@app.route('/api/papers')
+def get_papers():
+    """Get all papers uploaded by the logged-in user."""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Please log in first'}), 401
+
+    conn = get_db()
+    rows = conn.execute(
+        'SELECT * FROM papers WHERE user_id = ? ORDER BY uploaded_at DESC',
+        (user_id,)
+    ).fetchall()
+    conn.close()
+
+    papers = []
+    for row in rows:
+        papers.append({
+            'id': row['id'],
+            'filename': row['filename'],
+            'summary': row['summary'],
+            'key_points': json.loads(row['key_points']) if row['key_points'] else [],
+            'terms': json.loads(row['terms']) if row['terms'] else [],
+            'uploaded_at': row['uploaded_at']
+        })
+
+    return jsonify({'papers': papers})
+
+
+# ============================================
+# RUN THE SERVER
+# ============================================
+if __name__ == '__main__':
+    print('\n📡 ResearchRadar is running!')
+    print('   Open http://localhost:5000 in your browser\n')
+    app.run(debug=True, port=5000)

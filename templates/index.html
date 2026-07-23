@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ResearchRadar — Research Paper Assistant for students and researchers">
+    <title>ResearchRadar — Research Paper Assistant</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- ========== TOAST NOTIFICATION CONTAINER ========== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ========== SINGLE IMAGE SPLIT AUTH PAGE (Login / Register) ========== -->
+    <div id="authPage" class="auth-container">
+        <!-- Left Side: Unblurred Image with Dynamic Branding Overlay -->
+        <div class="auth-brand">
+            <div class="brand-header-box">
+                <!-- Moving "Welcome Back," title only shown when user logs out then logs back in -->
+                <div id="welcomeBackTitle" class="welcome-back-title hidden">
+                    Welcome Back, <span>Researcher!</span>
+                </div>
+            </div>
+
+            <div class="brand-center-card">
+                <div class="brand-logo-wrap">
+                    <span class="brand-logo-icon">📡</span>
+                    <span class="brand-logo-text">ResearchRadar</span>
+                </div>
+                <p class="brand-tagline">Understand Research. Build Innovation.</p>
+            </div>
+
+            <div class="brand-footer-note"></div>
+        </div>
+
+        <!-- Right Side: Half Blurred Image Background for Form Container -->
+        <div class="auth-form-wrapper">
+            <!-- Login Form (styled like reference screenshot) -->
+            <div id="loginForm" class="auth-form">
+                <h2>Login</h2>
+                
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="mail@website.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Min. 8 character" required>
+                </div>
+
+                <div class="form-options">
+                    <label>
+                        <input type="checkbox" id="rememberMe" checked> Remember me
+                    </label>
+                    <a href="javascript:void(0)" onclick="showToast('Password reset link sent to registered email.', 'info')">Forgot password?</a>
+                </div>
+
+                <button class="btn btn-matcha" onclick="handleLogin()">Login</button>
+
+                <p class="auth-toggle">
+                    Not registered yet? <a onclick="toggleAuth('register')">Create an Account</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form hidden">
+                <h2>Create Account</h2>
+
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <input type="text" id="regName" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regEmail">Email Address</label>
+                    <input type="email" id="regEmail" placeholder="mail@website.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <input type="password" id="regPassword" placeholder="Min. 8 character" required>
+                </div>
+
+                <button class="btn btn-matcha" onclick="handleRegister()">Create Account</button>
+
+                <p class="auth-toggle">
+                    Already have an account? <a onclick="toggleAuth('login')">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN APP LAYOUT (shown after login) ========== -->
+    <div id="appLayout" class="app-layout hidden">
+
+        <!-- Top Navigation Bar with Option Tabs -->
+        <header class="top-navbar-tabs">
+            <div class="top-nav-brand">
+                <span class="brand-icon">📡</span>
+                <span class="brand-text">ResearchRadar</span>
+            </div>
+
+            <nav class="top-nav-tabs">
+                <button class="nav-tab active" onclick="showPage('dashboard')" data-page="dashboard">
+                    <span class="icon">🏠</span> Home
+                </button>
+                <button class="nav-tab" onclick="showPage('profile')" data-page="profile">
+                    <span class="icon">👤</span> My Profile
+                </button>
+                <button class="nav-tab" onclick="showPage('about')" data-page="about">
+                    <span class="icon">ℹ️</span> About Creator
+                </button>
+            </nav>
+
+            <button class="top-logout-btn" onclick="handleLogout()">
+                <span class="icon">🚪</span> Logout
+            </button>
+        </header>
+
+        <!-- Main content area -->
+        <main class="main-content main-content-fullscreen">
+
+            <!-- ===== DASHBOARD PAGE — All tools on one page ===== -->
+            <section id="page-dashboard" class="dashboard-fullscreen">
+                
+                <!-- ▸ HERO SHOWCASE: Interactive Character Stage -->
+                <div class="avara-main-showcase avara-fullscreen-showcase">
+                    
+                    <div class="avara-showcase-top text-center">
+                        <span class="avara-pill-tag">✨ RESEARCHRADAR ECOSYSTEM</span>
+                    </div>
+
+                    <!-- Characters Stage (Centered / Prominent / Animated) -->
+                    <div class="avara-characters-stage fullscreen-stage">
+                        
+                        <!-- Character 1: Ghost (Research Protocol) -->
+                        <div class="avara-char-wrapper active" id="char-ghost" onclick="selectAvaraSlide(0)">
+                            <div class="avara-char-tooltip">Research Protocol</div>
+                            <div class="char-ghost-svg">
+                                <svg width="150" height="160" viewBox="0 0 110 120" fill="none">
+                                    <path d="M20 50C20 25 35 10 55 10C75 10 90 25 90 50V90C90 98 82 102 76 96L68 88L55 98L42 88L34 96C28 102 20 98 20 90V50Z" fill="#F8FAFC" />
+                                    <path d="M30 32C35 20 48 16 55 16C62 16 75 20 80 32H30Z" fill="#74A16C" />
+                                    <path d="M22 32C18 32 15 36 20 38L45 36H30Z" fill="#588B52" />
+                                    <circle cx="55" cy="24" r="5" fill="#FAF7F0" />
+                                    <circle cx="55" cy="24" r="2.5" fill="#74A16C" />
+                                    <circle cx="43" cy="52" r="6" fill="#2C2723" />
+                                    <circle cx="67" cy="52" r="6" fill="#2C2723" />
+                                    <circle cx="45" cy="50" r="2" fill="#FFFFFF" />
+                                    <circle cx="69" cy="50" r="2" fill="#FFFFFF" />
+                                    <path d="M51 64C51 66 59 66 59 64" stroke="#2C2723" stroke-width="2.5" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Character 2: Orange Scalloped Frame (Research Vault) -->
+                        <div class="avara-char-wrapper" id="char-frame" onclick="selectAvaraSlide(1)">
+                            <div class="avara-char-tooltip">Research Vault</div>
+                            <div class="char-frame-svg">
+                                <svg width="150" height="150" viewBox="0 0 110 110" fill="none">
+                                    <rect x="15" y="15" width="80" height="80" rx="18" fill="#FB923C" />
+                                    <rect x="25" y="25" width="60" height="60" rx="10" fill="#2C2723" />
+                                    <rect x="35" y="35" width="40" height="40" rx="6" fill="#F97316" opacity="0.8" />
+                                    <path d="M47 45H63M47 55H63M47 65H57" stroke="#FAF7F0" stroke-width="3" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Character 3: Blue Cloud (ArXiv Search Feed) -->
+                        <div class="avara-char-wrapper" id="char-cloud" onclick="selectAvaraSlide(2)">
+                            <div class="avara-char-tooltip">ArXiv Search Feed</div>
+                            <div class="char-cloud-svg">
+                                <svg width="160" height="140" viewBox="0 0 120 100" fill="none">
+                                    <path d="M35 75C22 75 12 65 12 52C12 41 19 32 30 30C34 18 45 10 58 10C73 10 85 20 88 34C98 35 106 43 106 54C106 66 96 75 84 75H35Z" fill="#38BDF8" />
+                                    <circle cx="46" cy="46" r="4.5" fill="#2C2723" />
+                                    <circle cx="70" cy="46" r="4.5" fill="#2C2723" />
+                                    <path d="M52 56C54 60 62 60 64 56" stroke="#2C2723" stroke-width="3" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Character 4: Green Circle (Startup Viability) -->
+                        <div class="avara-char-wrapper" id="char-circle" onclick="selectAvaraSlide(3)">
+                            <div class="avara-char-tooltip">Startup Viability</div>
+                            <div class="char-circle-svg">
+                                <svg width="145" height="145" viewBox="0 0 105 105" fill="none">
+                                    <circle cx="52.5" cy="52.5" r="45" fill="#4ADE80" />
+                                    <circle cx="52.5" cy="52.5" r="32" fill="#166534" opacity="0.3" />
+                                    <circle cx="38" cy="38" r="4" fill="#052E16" />
+                                    <circle cx="67" cy="38" r="4" fill="#052E16" />
+                                    <circle cx="52.5" cy="70" r="4" fill="#052E16" />
+                                    <path d="M62 48C60 44 54 42 48 44C42 46 38 52 40 58C42 64 48 68 56 66C61 65 64 61 64 57H52" stroke="#052E16" stroke-width="4" stroke-linecap="round" />
+                                </svg>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="avara-info-center text-center">
+                        <h3 class="avara-showcase-title" id="avaraTitle">Developers of the ResearchRadar Protocol</h3>
+                        <p class="avara-showcase-desc" id="avaraDesc">
+                            High-performance AI PDF parsing and paper synthesis engine. Extract structured summaries, core methodology, and jargon definitions in seconds.
+                        </p>
+                        <button class="btn btn-matcha avara-action-btn" id="avaraActionBtn" onclick="launchAvaraSlide()">
+                            Launch Research Engine →
+                        </button>
+                    </div>
+
+                    <div class="avara-showcase-footer">
+                        <div class="avara-nav-arrows">
+                            <button class="arrow-btn" onclick="prevAvaraSlide()">←</button>
+                            <button class="arrow-btn" onclick="nextAvaraSlide()">→</button>
+                            <span class="slide-indicator" id="slideIndicator">1 / 4</span>
+                        </div>
+                        <div class="avara-footer-logo">RESEARCHRADAR PROTOCOL</div>
+                    </div>
+                </div>
+
+                <!-- ═══════════ SECTION DIVIDER ═══════════ -->
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-label">📄 Upload &amp; Analyze Paper</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <!-- ▸ UPLOAD PAPER (Emulsified Light Section) -->
+                <div class="dash-section section-emulsion-green" id="sec-upload">
+                    <div class="dash-section-inner">
+                        <div class="section-badge upload-badge">PAPER PARSER</div>
+                        <h2 class="section-title">Upload Research Paper</h2>
+                        <p class="section-subtitle">Upload a PDF to extract key insights, structured summaries, and domain terms.</p>
+                        <div class="card card-light-glow">
+                            <div class="upload-area" id="uploadArea" onclick="document.getElementById('pdfInput').click()">
+                                <div class="icon">📁</div>
+                                <p>Click to select a PDF paper file</p>
+                                <p id="selectedFile" class="filename"></p>
+                                <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="onFileSelect(event)">
+                            </div>
+                            <button class="btn btn-matcha" onclick="handleUpload()" id="uploadBtn">
+                                Analyze Paper
+                            </button>
+                        </div>
+                        <div id="uploadResults" class="results-area"></div>
+                    </div>
+                </div>
+
+                <!-- ═══════════ SECTION DIVIDER ═══════════ -->
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-label">🔍 Literature Discovery</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <!-- ▸ SEARCH PAPERS FEATURE WITH DATABASE CONSTELLATION PARALLAX BACKGROUND -->
+                <div class="dash-section section-emulsion-sky feature-parallax-section" id="sec-search">
+                    
+                    <!-- Background Database Network SVG Layer (Behind Content) -->
+                    <div class="section-bg-layer database-bg-layer">
+                        <svg width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" fill="none">
+                            <g stroke="#74A16C" stroke-width="1.5" opacity="0.35" stroke-dasharray="4 4">
+                                <line x1="500" y1="250" x2="240" y2="100" />
+                                <line x1="500" y1="250" x2="380" y2="70" />
+                                <line x1="500" y1="250" x2="620" y2="70" />
+                                <line x1="500" y1="250" x2="760" y2="100" />
+                                <line x1="500" y1="250" x2="850" y2="250" />
+                                <line x1="500" y1="250" x2="780" y2="400" />
+                                <line x1="500" y1="250" x2="620" y2="430" />
+                                <line x1="500" y1="250" x2="380" y2="430" />
+                                <line x1="500" y1="250" x2="220" y2="400" />
+                                <line x1="500" y1="250" x2="150" y2="250" />
+                            </g>
+
+                            <!-- Central Database Cylinder -->
+                            <g transform="translate(460, 210)" opacity="0.45">
+                                <rect x="0" y="0" width="80" height="80" rx="16" fill="#1C2A26" stroke="#74A16C" stroke-width="2" />
+                                <ellipse cx="40" cy="24" rx="26" ry="8" fill="#74A16C" opacity="0.5" stroke="#74A16C" stroke-width="1.5" />
+                                <path d="M14 24 v16 c0 5 12 8 26 8 s26 -3 26 -8 v-16" fill="none" stroke="#74A16C" stroke-width="1.5" />
+                                <path d="M14 40 v16 c0 5 12 8 26 8 s26 -3 26 -8 v-16" fill="none" stroke="#74A16C" stroke-width="1.5" />
+                                <path d="M14 56 v16 c0 5 12 8 26 8 s26 -3 26 -8 v-16" fill="none" stroke="#74A16C" stroke-width="1.5" />
+                            </g>
+
+                            <!-- Floating Document Constellation Cards -->
+                            <g fill="#FAF7F0" stroke="#74A16C" stroke-width="1.5" opacity="0.4">
+                                <rect x="220" y="80" width="45" height="55" rx="6" />
+                                <rect x="360" y="50" width="45" height="55" rx="6" />
+                                <rect x="600" y="50" width="45" height="55" rx="6" />
+                                <rect x="740" y="80" width="45" height="55" rx="6" />
+                                <rect x="830" y="225" width="45" height="55" rx="6" />
+                                <rect x="760" y="370" width="45" height="55" rx="6" />
+                                <rect x="600" y="400" width="45" height="55" rx="6" />
+                                <rect x="360" y="400" width="45" height="55" rx="6" />
+                                <rect x="200" y="370" width="45" height="55" rx="6" />
+                                <rect x="130" y="225" width="45" height="55" rx="6" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="dash-section-inner">
+                        <div class="section-badge search-badge">ARXIV EXPLORER</div>
+                        <h2 class="section-title">Search Research Papers</h2>
+                        <p class="section-subtitle">Discover published literature across ArXiv by keywords or research domain.</p>
+                        <div class="card card-light-glow">
+                            <div class="form-group">
+                                <label for="searchQuery">Search Keywords</label>
+                                <input type="text" id="searchQuery" placeholder="e.g. quantum computing, deep learning, computer vision...">
+                            </div>
+                            <button class="btn btn-matcha" onclick="handleSearch()" id="searchBtn" style="width:auto;">
+                                🔍 Search ArXiv
+                            </button>
+                        </div>
+                        <div id="searchResults" class="results-area"></div>
+                    </div>
+                </div>
+
+                <!-- ═══════════ SECTION DIVIDER ═══════════ -->
+                <div class="section-divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-label">💡 Innovation Lab</span>
+                    <div class="divider-line"></div>
+                </div>
+
+                <!-- ▸ STARTUP ANALYZER FEATURE WITH LIGHTBULB NETWORK PARALLAX BACKGROUND -->
+                <div class="dash-section section-emulsion-rose feature-parallax-section" id="sec-analyzer">
+                    
+                    <!-- Background Wireframe Lightbulb SVG Layer (Behind Content - NO "idea" text inside bulb!) -->
+                    <div class="section-bg-layer bulb-bg-layer">
+                        <svg width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" fill="none">
+                            <defs>
+                                <radialGradient id="bgBulbGlow" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.6" />
+                                    <stop offset="60%" stop-color="#74A16C" stop-opacity="0.25" />
+                                    <stop offset="100%" stop-color="#141C1A" stop-opacity="0" />
+                                </radialGradient>
+                            </defs>
+
+                            <!-- Glow Center Backdrop -->
+                            <circle cx="500" cy="250" r="180" fill="url(#bgBulbGlow)" />
+
+                            <!-- Upward Growth Stock Chart Lines (Left) -->
+                            <g transform="translate(140, 220)" opacity="0.35">
+                                <line x1="0" y1="100" x2="160" y2="100" stroke="#74A16C" stroke-width="1.5" />
+                                <rect x="20" y="60" width="12" height="40" fill="#22C55E" />
+                                <rect x="50" y="40" width="12" height="60" fill="#22C55E" />
+                                <rect x="80" y="20" width="12" height="80" fill="#22C55E" />
+                                <path d="M25 60 L55 40 L85 20 L120 5" stroke="#FACC15" stroke-width="2.5" fill="none" />
+                            </g>
+
+                            <!-- Upward Growth Stock Chart Lines (Right) -->
+                            <g transform="translate(700, 220)" opacity="0.35">
+                                <line x1="0" y1="100" x2="160" y2="100" stroke="#74A16C" stroke-width="1.5" />
+                                <rect x="20" y="60" width="12" height="40" fill="#22C55E" />
+                                <rect x="50" y="40" width="12" height="60" fill="#22C55E" />
+                                <rect x="80" y="20" width="12" height="80" fill="#22C55E" />
+                                <path d="M25 60 L55 40 L85 20 L120 5" stroke="#FACC15" stroke-width="2.5" fill="none" />
+                            </g>
+
+                            <!-- Background Main Wireframe Lightbulb (NO "idea" text inside!) -->
+                            <g transform="translate(430, 110)" opacity="0.45">
+                                <path d="M70 0 C31 0 0 31 0 70 C0 96 15 119 38 131 L38 158 C38 166 45 173 53 173 L87 173 C95 173 102 166 102 158 L102 131 C125 119 140 96 140 70 C140 31 109 0 70 0 Z" fill="rgba(244, 239, 230, 0.04)" stroke="#FACC15" stroke-width="3" />
+                                <rect x="46" y="177" width="48" height="9" rx="4" fill="#74A16C" stroke="#FACC15" stroke-width="1.5" />
+                                <rect x="51" y="190" width="38" height="8" rx="4" fill="#588B52" stroke="#FACC15" stroke-width="1.5" />
+                                <path d="M58 202 L82 202 L70 214 Z" fill="#FACC15" />
+
+                                <!-- Filament Network Mesh (NO text inside!) -->
+                                <path d="M45 80 L70 45 L95 80 M70 45 L70 115" stroke="#FACC15" stroke-width="2" />
+                                <circle cx="70" cy="45" r="7" fill="#FEF08A" />
+                                <circle cx="45" cy="80" r="6" fill="#FEF08A" />
+                                <circle cx="95" cy="80" r="6" fill="#FEF08A" />
+                                <circle cx="70" cy="115" r="6" fill="#FEF08A" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="dash-section-inner">
+                        <div class="section-badge analyzer-badge">VIABILITY ENGINE</div>
+                        <h2 class="section-title">Startup Idea Analyzer</h2>
+                        <p class="section-subtitle">Evaluate your research paper or business idea for innovation, feasibility, and market potential.</p>
+                        <div class="card card-light-glow">
+                            <div class="form-group">
+                                <label for="ideaInput">Describe Your Idea</label>
+                                <textarea id="ideaInput" rows="4" placeholder="Describe your innovation, target users, core technology, or research solution..."></textarea>
+                            </div>
+                            <button class="btn btn-matcha" onclick="handleAnalyze()" id="analyzeBtn" style="width:auto;">
+                                💡 Analyze Idea
+                            </button>
+                        </div>
+                        <div id="analyzerResults" class="results-area"></div>
+                    </div>
+                </div>
+
+                <!-- Footer spacer -->
+                <div style="height: 60px;"></div>
+
+            </section>
+
+            <!-- ===== UPLOAD PAGE (Standalone view if clicked directly) ===== -->
+            <section id="page-upload" class="hidden">
+                <div class="page-header">
+                    <h1>Upload Research Paper</h1>
+                    <p>Upload a PDF to extract key insights, structured summaries, and domain terms.</p>
+                </div>
+                <div class="card">
+                    <div class="upload-area" onclick="document.getElementById('pdfInputNav').click()">
+                        <div class="icon">📁</div>
+                        <p>Click to select a PDF paper file</p>
+                        <p id="selectedFileNav" class="filename"></p>
+                        <input type="file" id="pdfInputNav" accept=".pdf" style="display:none" onchange="onFileSelect(event)">
+                    </div>
+                    <button class="btn btn-matcha" onclick="handleUpload()" id="uploadBtnNav">
+                        Analyze Paper
+                    </button>
+                </div>
+            </section>
+
+            <!-- ===== SEARCH PAGE (Standalone view if clicked directly) ===== -->
+            <section id="page-search" class="hidden">
+                <div class="page-header">
+                    <h1>Search Research Papers</h1>
+                    <p>Discover published literature across ArXiv by keywords or research domain.</p>
+                </div>
+                <div class="card">
+                    <div class="form-group">
+                        <label for="searchQueryNav">Search Keywords</label>
+                        <input type="text" id="searchQueryNav" placeholder="e.g. quantum computing, deep learning...">
+                    </div>
+                    <button class="btn btn-matcha" onclick="handleSearch()" id="searchBtnNav" style="width:auto;">
+                        🔍 Search ArXiv
+                    </button>
+                </div>
+            </section>
+
+            <!-- ===== ANALYZER PAGE (Standalone view if clicked directly) ===== -->
+            <section id="page-analyzer" class="hidden">
+                <div class="page-header">
+                    <h1>Startup Idea Analyzer</h1>
+                    <p>Evaluate your research paper or business idea for innovation, feasibility, and market potential.</p>
+                </div>
+                <div class="card">
+                    <div class="form-group">
+                        <label for="ideaInputNav">Describe Your Idea</label>
+                        <textarea id="ideaInputNav" rows="4" placeholder="Describe your innovation, target users, core technology..."></textarea>
+                    </div>
+                    <button class="btn btn-matcha" onclick="handleAnalyze()" id="analyzeBtnNav" style="width:auto;">
+                        💡 Analyze Idea
+                    </button>
+                </div>
+            </section>
+
+            <!-- ===== PROFILE PAGE ===== -->
+            <section id="page-profile" class="hidden">
+                <div class="page-header">
+                    <h1>My Profile</h1>
+                    <p>Account details and history of uploaded papers.</p>
+                </div>
+                <div id="profileInfo"></div>
+                <h2 style="margin: 28px 0 16px;">My Papers &amp; Summaries</h2>
+                <div id="profilePapers">
+                    <p style="color: var(--text-muted);">No papers uploaded yet.</p>
+                </div>
+            </section>
+
+            <!-- ===== ABOUT CREATOR PAGE ===== -->
+            <section id="page-about" class="hidden">
+                <div class="page-header">
+                    <h1>About ResearchRadar</h1>
+                    <p>College Project &amp; Creator Details</p>
+                </div>
+
+                <div class="about-hero">
+                    <span class="badge-tag badge-matcha">College Project</span>
+                    <h2>ResearchRadar Assistant</h2>
+                    <p>Designed and developed to streamline research comprehension, literature exploration, and business viability evaluation for students, scholars, and founders.</p>
+                </div>
+
+                <div class="about-grid">
+                    <div class="about-card">
+                        <h3>👨‍💻 Developer Profile</h3>
+                        <ul class="detail-list">
+                            <li><span class="label">Project Developer</span><span class="value">Lakshya Prasad</span></li>
+                            <li><span class="label">Department</span><span class="value">Computer Science &amp; Eng.</span></li>
+                            <li><span class="label">Project Title</span><span class="value">ResearchRadar</span></li>
+                            <li><span class="label">Project Type</span><span class="value">Full Stack Web Application</span></li>
+                        </ul>
+                    </div>
+                    <div class="about-card">
+                        <h3>🛠️ Technology Stack</h3>
+                        <ul class="detail-list">
+                            <li><span class="label">Backend</span><span class="value">Python &amp; Flask</span></li>
+                            <li><span class="label">Database</span><span class="value">SQLite</span></li>
+                            <li><span class="label">Frontend</span><span class="value">HTML / CSS / JS</span></li>
+                            <li><span class="label">External APIs</span><span class="value">ArXiv API &amp; Groq LLM API</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--matcha-dark); margin-bottom: 12px;">🌟 Project Highlights &amp; Features</h3>
+                    <ul style="padding-left: 20px; font-size: 0.93rem; color: var(--text-dark); line-height: 1.8;">
+                        <li><strong>Single-Page Architecture:</strong> Built using clean, non-complex RESTful endpoints and modular vanilla JS.</li>
+                        <li><strong>PDF Parsing &amp; Summarization:</strong> Automated text extraction and structured synthesis (Summary, Key Points, Terms).</li>
+                        <li><strong>ArXiv Literature Search:</strong> Real-time XML parsing for query-based scientific paper retrieval.</li>
+                        <li><strong>Startup Viability Scoring:</strong> Multi-dimensional scoring for innovation, market feasibility, and execution.</li>
+                        <li><strong>Viva &amp; Demo Ready:</strong> Well-commented codebase around ~1100 lines for easy explanation during college evaluation.</li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
