@@ -1,4 +1,4 @@
-# 📡 ResearchRadar — AI Research Paper Assistant
+# 📡 ResearchRadar — Research Paper Assistant
 
 A full-stack web application that helps students and researchers **understand research papers**, **discover literature**, and **evaluate startup ideas** — all powered by AI.
 
@@ -56,8 +56,6 @@ ResearchRadar/
 ├── app.py                  # Flask server — all API routes & AI logic
 ├── database.db             # SQLite database (auto-created)
 ├── requirements.txt        # Python dependencies
-├── .env                    # API keys & config (not committed)
-├── .env.example            # Template for environment variables
 ├── templates/
 │   └── index.html          # Single-page frontend (SPA)
 ├── static/
