@@ -25,7 +25,7 @@ from flask import Flask, request, jsonify, session, render_template
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
-from openai import OpenAI
+from groq import Groq
 import PyPDF2
 
 # Load environment variables from .env file
@@ -53,12 +53,13 @@ if os.path.exists(generated_img) and not os.path.exists(dest_img):
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# OpenAI client setup (works with any OpenAI-compatible API)
-ai_client = OpenAI(
-    api_key=os.getenv('OPENAI_API_KEY', ''),
-    base_url=os.getenv('OPENAI_BASE_URL', 'https://api.openai.com/v1')
+ai_client = Groq(
+    api_key=os.getenv('GROQ_API_KEY', '')
 )
-AI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
+AI_MODEL = os.getenv('GROQ_MODEL', 'llama-3.3-70b-versatile')
+
+DATABASE = os.path.join(os.path.dirname(__file__), 'database.db')
+
 
 DATABASE = os.path.join(os.path.dirname(__file__), 'database.db')
 

@@ -1,0 +1,24 @@
+replicaCount: 2
+
+image:
+  repository: 794562053920.dkr.ecr.us-east-1.amazonaws.com/researchradar
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: researchradar.local
+
+env:
+  GROQ_API_KEY: "" # Provide during install or CI
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70

@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: researchradar
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: researchradar
+  template:
+    metadata:
+      labels:
+        app: researchradar
+    spec:
+      containers:
+        - name: researchradar
+          image: 794562053920.dkr.ecr.us-east-1.amazonaws.com/researchradar:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: GROQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: researchradar-secrets
+                  key: GROQ_API_KEY

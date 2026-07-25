@@ -4,6 +4,5 @@
 flask
 flask-cors
 PyPDF2
-openai
 python-dotenv
 requests
