@@ -1,111 +1,166 @@
-# 📡 ResearchRadar AI — Intelligent Research Paper Assistant & Startup Analyzer
+# 📡 ResearchRadar — AI Research Paper Assistant
 
-[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.0+-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
-[![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/)
-[![Groq AI](https://img.shields.io/badge/Groq_LLM-Llama_3.3_70B-F05032?style=for-the-badge)](https://groq.com/)
+A full-stack web application that helps students and researchers **understand research papers**, **discover literature**, and **evaluate startup ideas** — all powered by AI.
 
-**ResearchRadar** is a web-based AI research paper assistant and startup viability evaluation platform built as a Computer Science & Engineering college project. It empowers students, scholars, and founders to instantly summarize academic PDFs, search live literature on ArXiv, evaluate business idea feasibility with interactive percentage metrics, and store paper insights in a personal vault.
+Built as a college project by **Lakshya Prasad** (Computer Science & Engineering).
 
 ---
 
-## 🎨 Design & Aesthetic Theme
+## ✨ Features
 
-- **Theme Palette:** Elegant Light Mode featuring **Matcha Green** (`#74A16C`), **Soft Red** (`#E06D63`), **Warm Beige** (`#F4EFE6`), **Soft Cream** (`#FAF7F0`), and **Sky Blue** (`#38BDF8`).
-- **Emulsified Parallax Layers:** Interactive SVG background elements (Constellation Grid, Filament Node Bulb) with smooth parallax scroll effects.
-- **Glassmorphism & Cards:** Backdrop blur effects (`backdrop-filter: blur(12px)`), soft radial glows, and clean rounded card layouts.
-- **Single Page Architecture (SPA):** Seamless tab navigation (`🏠 Home`, `👤 My Profile`, `ℹ️ About Creator`) without page reloads.
+### 🔬 PDF Paper Summarizer
+Upload any research paper PDF and get an AI-generated structured analysis:
+- **Paper Summary** — Clear 2–3 paragraph overview
+- **Key Points & Contributions** — 5–7 core findings
+- **Technical Terms** — Important jargon with plain-English definitions
+
+### 🔍 ArXiv Literature Search
+Search the global ArXiv database in real-time:
+- Query by keywords or research domain
+- View paper titles, authors, and truncated abstracts
+- Direct links to full papers on ArXiv
+
+### 💡 Startup Idea Analyzer
+Evaluate any research-based idea or startup concept with a multi-dimensional AI scorecard:
+- **Innovation Index** (0–10)
+- **Technical Feasibility** (0–10)
+- **Market Potential** (0–10)
+- **Overall Viability** (0–10)
+- Actionable strategic suggestions
+
+### 👤 User Profile & Research Vault
+- Secure account registration & login
+- Persistent history of all analyzed papers with full summaries
+- Personal research vault stored in SQLite
 
 ---
 
-## ✨ Core Features
-
-| Feature | Description |
-|---|---|
-| 🔐 **Authentication & Session** | Secure user registration & login, password hashing (`werkzeug.security`), and session management. |
-| 📄 **PDF Summarization & Knowledge Vault** | Upload PDF → Extract text via `PyPDF2` → AI generates structured summary, key findings, and technical terms. |
-| 🔍 **ArXiv Literature Search** | Query real-time scientific papers using the public ArXiv XML Atom API with direct PDF access. |
-| 📈 **Startup Idea Analyzer & % Meters** | AI multi-dimensional scoring (Overall Viability, Innovation, Technical Feasibility, Market Opportunity) with percentage progress bars. |
-| 👤 **My Profile & Paper History** | Displays user avatar, account details, and complete history of uploaded PDFs with full AI summaries and term dictionaries. |
-| ℹ️ **About Creator** | Developer portfolio section highlighting project specifications, CSE department info, and tech stack details. |
-
----
-
-## 🛠️ Technology Stack
+## 🛠️ Tech Stack
 
 | Layer | Technology |
-|---|---|
-| **Backend** | Python 3, Flask, Werkzeug |
-| **Database** | SQLite 3 |
-| **Frontend** | HTML5, Vanilla CSS3, JavaScript (ES6+ SPA) |
-| **AI / LLM API** | Groq API / OpenAI Compatible (`llama-3.3-70b-versatile`) |
-| **Paper Search** | ArXiv Public XML API |
-| **PDF Processing** | PyPDF2 |
+|-------|-----------|
+| **Backend** | Python, Flask |
+| **Frontend** | HTML, CSS (vanilla), JavaScript |
+| **Database** | SQLite |
+| **AI/LLM** | OpenAI-compatible API (GPT-4o-mini, Groq, etc.) |
+| **PDF Parsing** | PyPDF2 |
+| **Paper Search** | ArXiv REST API (Atom XML) |
+| **Auth** | Flask sessions + Werkzeug password hashing |
 
 ---
 
-## 📁 Project Directory Structure
+## 📁 Project Structure
 
 ```
 ResearchRadar/
-├── app.py                  # Flask backend server (~450 lines)
-├── .gitignore              # Git exclusion file (protects API keys & DB)
-├── README.md               # Project documentation
-├── database.db             # SQLite database (auto-generated)
-├── uploads/                # Directory for uploaded PDF research papers
+├── app.py                  # Flask server — all API routes & AI logic
+├── database.db             # SQLite database (auto-created)
+├── requirements.txt        # Python dependencies
+├── .env                    # API keys & config (not committed)
+├── .env.example            # Template for environment variables
+├── templates/
+│   └── index.html          # Single-page frontend (SPA)
 ├── static/
 │   ├── css/
-│   │   └── style.css       # Custom Matcha/Beige light-mode stylesheet
-│   ├── images/
-│   │   └── login_bg.jpg    # Academic background image
-│   └── js/
-│       └── app.js          # SPA logic, parallax scroll, and REST API handlers
-└── templates/
-    └── index.html          # Single-page application HTML layout
+│   │   └── style.css       # Full stylesheet (warm light theme)
+│   ├── js/
+│   │   └── app.js          # Frontend logic, API calls, UI rendering
+│   └── images/
+│       └── login_bg.jpg    # Login page background image
+└── uploads/                # Uploaded PDF files (per-user)
 ```
 
 ---
 
-## 🚀 Quick Setup & Installation Guide
+## 🚀 Getting Started
 
-### Step 1: Clone the Repository
+### Prerequisites
+- **Python 3.8+**
+- An **OpenAI-compatible API key** (OpenAI, Groq, Together AI, etc.)
+
+### 1. Clone the repository
+
 ```bash
 git clone https://github.com/Lakshya-prasad/ResearchRadar.git
 cd ResearchRadar
 ```
 
-### Step 2: Install Python Dependencies
+### 2. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 3: Configure Environment Variables
-Create a `.env` file in the project root folder:
-```env
-OPENAI_API_KEY=your_groq_api_key_here
-OPENAI_BASE_URL=https://api.groq.com/openai/v1
-OPENAI_MODEL=llama-3.3-70b-versatile
-SECRET_KEY=researchradar-secret-key-2026
-```
-*(Get a free Groq API key at [console.groq.com](https://console.groq.com))*
+### 3. Configure environment variables
 
-### Step 4: Run the Application
+Copy the example file and fill in your API key:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env`:
+
+```env
+OPENAI_API_KEY=your-api-key-here
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
+SECRET_KEY=change-this-to-a-random-string
+```
+
+> **Using Groq (free tier)?** Set `OPENAI_BASE_URL=https://api.groq.com/openai/v1` and `OPENAI_MODEL=llama-3.3-70b-versatile`
+
+### 4. Run the server
+
 ```bash
 python app.py
 ```
-Open your browser and navigate to **`http://localhost:5000`**
+
+Open **http://localhost:5000** in your browser.
 
 ---
 
-## 👨‍💻 Developer & College Project Info
+## 📡 API Endpoints
 
-- **Developer:** Lakshya Prasad
-- **Department:** Computer Science & Engineering
-- **Project Title:** ResearchRadar — AI Research Assistant & Startup Evaluator
-- **Project Scope:** Full-Stack Web Application (~1200 lines clean codebase), optimized for viva evaluation and live demonstration.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/` | Serve the SPA frontend |
+| `POST` | `/api/register` | Create a new user account |
+| `POST` | `/api/login` | Authenticate and start session |
+| `POST` | `/api/logout` | Clear user session |
+| `GET` | `/api/me` | Get current logged-in user info |
+| `POST` | `/api/upload` | Upload PDF and get AI summary |
+| `GET` | `/api/search?q=...` | Search ArXiv for papers |
+| `POST` | `/api/analyze` | Analyze a startup/research idea |
+| `GET` | `/api/papers` | Get user's uploaded paper history |
+
+---
+
+## 🎨 Design
+
+- **Theme:** Warm light mode — Beige, Matcha Green, Soft Red palette
+- **Typography:** Inter + Poppins (Google Fonts)
+- **Layout:** Single-page app with top navbar navigation
+- **Hero Section:** Interactive animated character showcase with 4 SVG characters
+- **Section Backgrounds:** Parallax SVG graphics with scroll-based animation
+- **Login Page:** Split layout with background image, glassmorphism form
+
+---
+
+## 📝 How It Works
+
+1. **Register/Login** → Creates a session-based account stored in SQLite
+2. **Upload a PDF** → PyPDF2 extracts text → sent to LLM API → structured JSON response rendered in the UI
+3. **Search Papers** → Query hits ArXiv REST API → Atom XML parsed → results displayed as cards
+4. **Analyze Idea** → Description sent to LLM API → multi-factor scoring returned as JSON → visualized with progress bars and score cards
+5. **Profile** → Fetches all previously analyzed papers from the database with full summaries
 
 ---
 
 ## 📄 License
-This project is open-source and available under the [MIT License](LICENSE).
+
+This project was built for academic purposes as a college project.
+
+---
+
+> **ResearchRadar** — *Understand Research. Build Innovation.*
