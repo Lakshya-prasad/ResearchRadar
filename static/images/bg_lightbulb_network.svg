@@ -1,0 +1,45 @@
+<svg width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="bgBulbGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#FEF08A" stop-opacity="0.6" />
+            <stop offset="60%" stop-color="#74A16C" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="#141C1A" stop-opacity="0" />
+        </radialGradient>
+    </defs>
+
+    <!-- Glow Center Backdrop -->
+    <circle cx="500" cy="250" r="180" fill="url(#bgBulbGlow)" />
+
+    <!-- Upward Growth Stock Chart Lines (Left) -->
+    <g transform="translate(140, 220)" opacity="0.35">
+        <line x1="0" y1="100" x2="160" y2="100" stroke="#74A16C" stroke-width="1.5" />
+        <rect x="20" y="60" width="12" height="40" fill="#22C55E" />
+        <rect x="50" y="40" width="12" height="60" fill="#22C55E" />
+        <rect x="80" y="20" width="12" height="80" fill="#22C55E" />
+        <path d="M25 60 L55 40 L85 20 L120 5" stroke="#FACC15" stroke-width="2.5" fill="none" />
+    </g>
+
+    <!-- Upward Growth Stock Chart Lines (Right) -->
+    <g transform="translate(700, 220)" opacity="0.35">
+        <line x1="0" y1="100" x2="160" y2="100" stroke="#74A16C" stroke-width="1.5" />
+        <rect x="20" y="60" width="12" height="40" fill="#22C55E" />
+        <rect x="50" y="40" width="12" height="60" fill="#22C55E" />
+        <rect x="80" y="20" width="12" height="80" fill="#22C55E" />
+        <path d="M25 60 L55 40 L85 20 L120 5" stroke="#FACC15" stroke-width="2.5" fill="none" />
+    </g>
+
+    <!-- Background Main Wireframe Lightbulb -->
+    <g transform="translate(430, 110)" opacity="0.45">
+        <path d="M70 0 C31 0 0 31 0 70 C0 96 15 119 38 131 L38 158 C38 166 45 173 53 173 L87 173 C95 173 102 166 102 158 L102 131 C125 119 140 96 140 70 C140 31 109 0 70 0 Z" fill="rgba(244, 239, 230, 0.04)" stroke="#FACC15" stroke-width="3" />
+        <rect x="46" y="177" width="48" height="9" rx="4" fill="#74A16C" stroke="#FACC15" stroke-width="1.5" />
+        <rect x="51" y="190" width="38" height="8" rx="4" fill="#588B52" stroke="#FACC15" stroke-width="1.5" />
+        <path d="M58 202 L82 202 L70 214 Z" fill="#FACC15" />
+
+        <!-- Filament Network Mesh -->
+        <path d="M45 80 L70 45 L95 80 M70 45 L70 115" stroke="#FACC15" stroke-width="2" />
+        <circle cx="70" cy="45" r="7" fill="#FEF08A" />
+        <circle cx="45" cy="80" r="6" fill="#FEF08A" />
+        <circle cx="95" cy="80" r="6" fill="#FEF08A" />
+        <circle cx="70" cy="115" r="6" fill="#FEF08A" />
+    </g>
+</svg>
