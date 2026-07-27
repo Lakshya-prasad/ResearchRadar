@@ -322,7 +322,10 @@ def evaluate_startup_idea(idea):
     response = ai_client.chat.completions.create(
         model=AI_MODEL,
         messages=[
-            {'role': 'system', 'content': 'You are a startup evaluator and innovation analyst. Always respond with valid JSON only.'},
+            {
+                'role': 'system',
+                'content': 'You are a startup evaluator and innovation analyst. Always respond with valid JSON only.'
+            },
             {'role': 'user', 'content': prompt}
         ],
         temperature=0.4
