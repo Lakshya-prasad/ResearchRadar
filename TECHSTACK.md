@@ -1,144 +1,126 @@
-# AI Research Paper Assistant — Technology Stack (Version 1.0)
+# ResearchRadar — Technology Stack
 
 ## 1. Overview
 
-The project will be developed as a modern AI-powered web application. It will use a scalable architecture so that it can support multiple users, AI processing, research paper search, and startup idea analysis. The technology stack is chosen based on performance, security, ease of development, and future scalability.
+ResearchRadar is an AI-powered web application that helps researchers understand papers, discover literature, and evaluate startup ideas. It uses a monolithic Flask architecture with a DevOps pipeline targeting AWS EKS via ArgoCD.
 
 ## 2. Frontend
 
-- **Framework:** Next.js (React)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **UI Components:** shadcn/ui, Lucide React Icons
-- **State Management:** Zustand
-- **Forms:** React Hook Form, Zod Validation
-- **Charts & Graphs:** Recharts
-- **PDF Viewer:** React PDF
+- **Rendering:** Server-side (Flask templates + Jinja2)
+- **Language:** HTML, JavaScript (vanilla)
+- **Styling:** Vanilla CSS
+- **Typography:** Inter, Poppins (Google Fonts)
+- **Architecture:** Single-Page Application (SPA) rendered from `templates/index.html`
 
 ## 3. Backend
 
-- **Framework:** FastAPI (Python)
-- **Language:** Python 3.12+
+- **Framework:** Flask (Python)
+- **Language:** Python 3.11+
 - **API Type:** REST API
-- **Authentication:** JWT Authentication; Better Auth / Clerk (optional)
-- **File Upload:** FastAPI UploadFile
+- **WSGI Server:** Gunicorn (production)
+- **Authentication:** Flask sessions + Werkzeug password hashing (bcrypt)
+- **File Upload:** Flask `request.files`
 
 ## 4. Artificial Intelligence
 
-- **Large Language Model:** OpenAI GPT-5 / GPT-4.1, Llama 3 (open source)
-- **Embedding Model:** BAAI bge-large-en, Sentence Transformers
-- **RAG Framework:** LangChain
-- **AI Tasks:** Paper summarization, question answering, novelty detection, startup idea evaluation, research comparison, technical term explanation
+- **LLM Provider:** Groq API
+- **Default Model:** Llama 3.3 70B Versatile
+- **AI Tasks:** Paper summarization, key point extraction, technical term definitions, startup idea evaluation
 
-## 5. Vector Database
+## 5. Database
 
-- **Primary:** ChromaDB
-- **Alternatives:** FAISS, Pinecone
-- **Purpose:** Store document embeddings, semantic search, similar paper retrieval
+- **Primary Database:** SQLite (file-based, auto-created)
+- **Tables:** `users`, `papers`
 
-## 6. Database
+## 6. Research Paper Sources
 
-- **Primary Database:** PostgreSQL
-- **ORM:** Prisma
-- **Caching:** Redis
+- **ArXiv REST API** — Real-time paper search via Atom XML feed
 
-## 7. Research Paper Sources
+## 7. PDF Processing
 
-ArXiv, Crossref (DOI), Semantic Scholar, IEEE Xplore, ACM Digital Library, SpringerLink
+- **Library:** PyPDF2 — text extraction from uploaded PDFs
 
-## 8. PDF Processing
+## 8. DevOps & Infrastructure
 
-- **Libraries:** PyMuPDF, pdfplumber
-- **OCR (for scanned papers):** Tesseract OCR
+| Component | Technology |
+|-----------|-----------|
+| **Containerization** | Docker |
+| **Container Registry** | Amazon ECR |
+| **Container Orchestration** | Amazon EKS (Kubernetes) |
+| **CI/CD Pipeline** | GitHub Actions |
+| **GitOps / Continuous Deployment** | ArgoCD |
+| **Package Manager** | Helm Charts |
+| **Ingress Controller** | Nginx Ingress |
+| **Autoscaling** | Kubernetes HPA (CPU-based) |
+| **Version Control** | Git & GitHub |
 
-## 9. Search Engine
-
-- Elasticsearch (optional) — fast keyword search, paper indexing, topic search
-
-## 10. Cloud Storage
-
-- **Primary:** AWS S3
-- **Alternative:** Cloudinary
-- **Purpose:** Store uploaded research papers, store generated reports
-
-## 11. Deployment
-
-- **Frontend:** Vercel
-- **Backend:** Railway / Render
-- **Database:** Neon PostgreSQL
-- **Storage:** AWS S3
-- **Domain:** Cloudflare
-
-## 12. DevOps
-
-- **Containerization:** Docker
-- **Container Orchestration:** Kubernetes (future)
-- **CI/CD:** GitHub Actions
-- **Version Control:** Git & GitHub
-- **Reverse Proxy:** Nginx
-
-## 13. Security
-
-- HTTPS
-- JWT Authentication
-- Password hashing (bcrypt)
-- Role-Based Access Control (RBAC)
-- Input validation
-- Rate limiting
-- SQL injection protection
-- XSS protection
-
-## 14. Monitoring & Logging
-
-- **Monitoring:** Prometheus
-- **Dashboard:** Grafana
-- **Logging:** Loki
-- **Error Tracking:** Sentry
-
-## 15. Third-Party APIs
-
-- OpenAI API, ArXiv API, Crossref API, Semantic Scholar API
-- **Future integrations:** ORCID, GitHub API, Google Scholar (where permitted)
-
-## 16. Project Structure
+## 9. DevOps Pipeline Flow
 
 ```
-Frontend (Next.js)
+Developer pushes to main
         ↓
-Backend API (FastAPI)
+GitHub Actions: Lint → Test → Build Docker Image
         ↓
-AI Engine (LangChain + LLM)
+Push to Amazon ECR (SHA-tagged)
         ↓
-Vector Database (ChromaDB)
+Update Helm values.yaml with new image tag (committed to Git)
         ↓
-PostgreSQL Database
+ArgoCD detects Git change → syncs to EKS cluster
         ↓
-Cloud Storage (AWS S3)
+Kubernetes rolls out new Deployment (2-5 replicas via HPA)
 ```
 
-## 17. Development Tools
+## 10. Security
 
-Visual Studio Code, GitHub, Postman, Docker Desktop, Figma, Notion
+- Password hashing (Werkzeug/bcrypt)
+- Flask session-based authentication
+- Non-root Docker container
+- Kubernetes Secrets for API keys
+- Input validation on all API endpoints
 
-## 18. Future Technology Improvements
+## 11. Project Structure
 
-- Multi-Agent AI System
-- MCP (Model Context Protocol)
-- AI Workflow Automation
-- Voice-Based Research Assistant
-- Offline AI Models
-- Real-Time Collaboration
-- Multi-Language Support
-- Mobile Application (Flutter)
+```
+ResearchRadar/
+├── app.py                          # Flask server — all API routes & AI logic
+├── database.db                     # SQLite database (auto-created)
+├── requirements.txt                # Python dependencies
+├── Dockerfile                      # Production container image
+├── .dockerignore                   # Docker build exclusions
+├── .env.example                    # Environment variable template
+├── .github/workflows/ci.yml       # GitHub Actions CI/CD pipeline
+├── k8s/
+│   ├── manifests/                  # Raw Kubernetes manifests
+│   │   ├── deployment.yaml
+│   │   ├── service.yaml
+│   │   ├── ingress.yaml
+│   │   ├── secret.yaml
+│   │   └── argocd-app.yaml
+│   └── helm/researchradar/        # Helm chart
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       └── templates/
+│           ├── _helpers.tpl
+│           ├── deployment.yaml
+│           ├── service.yaml
+│           ├── ingress.yaml
+│           ├── secret.yaml
+│           └── hpa.yaml
+├── templates/
+│   └── index.html                  # Single-page frontend (SPA)
+├── static/
+│   ├── css/style.css
+│   ├── js/app.js
+│   └── images/
+└── uploads/                        # Uploaded PDF files (per-user)
+```
 
-## 19. Why This Tech Stack?
+## 12. Future Improvements
 
-- Next.js + Tailwind CSS provides a fast, responsive, and modern user interface.
-- FastAPI offers high performance for AI-powered APIs.
-- PostgreSQL ensures reliable and scalable data storage.
-- ChromaDB enables semantic search for research papers.
-- LangChain + LLMs power intelligent summarization, comparison, and question answering.
-- Docker and GitHub Actions simplify deployment and continuous integration.
-- Prometheus and Grafana help monitor application health and performance.
-
-This technology stack is suitable for building a scalable AI Research Paper Assistant and can support future enhancements such as startup idea evaluation, collaborative research features, and advanced AI capabilities.
+- PostgreSQL migration for multi-instance deployments
+- Redis session store for horizontal scaling
+- Prometheus + Grafana monitoring
+- Sealed Secrets or AWS Secrets Manager
+- Unit and integration test suite
+- Multi-language support
+- Mobile application

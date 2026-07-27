@@ -56,9 +56,8 @@ ResearchRadar/
 ├── app.py                  # Flask server — all API routes & AI logic
 ├── database.db             # SQLite database (auto-created)
 ├── requirements.txt        # Python dependencies
-├── templates/
-│   └── index.html          # Single-page frontend (SPA)
 ├── static/
+│   ├── index.html          # Single-page frontend (SPA)
 │   ├── css/
 │   │   └── style.css       # Full stylesheet (warm light theme)
 │   ├── js/

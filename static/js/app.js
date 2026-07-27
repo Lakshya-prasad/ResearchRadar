@@ -1,13 +1,6 @@
-// ============================================
-// ResearchRadar — Frontend JavaScript
-// Handles SPA navigation, API calls, and UI rendering
-// ============================================
-
-// ----- Global State -----
 let currentUser = null;
 let currentAvaraSlide = 0;
 
-// Character Showcase Data
 const avaraSlides = [
     {
         title: 'Developers of the ResearchRadar Protocol',
@@ -39,14 +32,12 @@ function selectAvaraSlide(index) {
     currentAvaraSlide = (index + avaraSlides.length) % avaraSlides.length;
     const slide = avaraSlides[currentAvaraSlide];
 
-    // Update active character highlight
     const charIds = ['char-ghost', 'char-frame', 'char-cloud', 'char-circle'];
     charIds.forEach((id, i) => {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('active', i === currentAvaraSlide);
     });
 
-    // Update info elements
     const titleEl = document.getElementById('avaraTitle');
     const descEl = document.getElementById('avaraDesc');
     const actionBtn = document.getElementById('avaraActionBtn');
@@ -78,10 +69,6 @@ function launchAvaraSlide() {
     }
 }
 
-// ============================================
-// TOAST NOTIFICATIONS
-// Show feedback messages to the user
-// ============================================
 function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -91,22 +78,15 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.remove(), 3000);
 }
 
-// ============================================
-// AUTH: Toggle between Login and Register forms
-// ============================================
 function toggleAuth(form) {
     document.getElementById('loginForm').classList.toggle('hidden', form !== 'login');
     document.getElementById('registerForm').classList.toggle('hidden', form !== 'register');
 }
 
-// ============================================
-// AUTH: Check and display "Welcome Back" banner if logged out previously
-// ============================================
 function updateWelcomeBackBanner() {
     const welcomeTitle = document.getElementById('welcomeBackTitle');
     if (!welcomeTitle) return;
-    
-    // "moving welcome back only shows when logout then again login"
+
     const hasLoggedOut = localStorage.getItem('hasLoggedOut');
     if (hasLoggedOut === 'true') {
         welcomeTitle.classList.remove('hidden');
@@ -115,9 +95,6 @@ function updateWelcomeBackBanner() {
     }
 }
 
-// ============================================
-// AUTH: Handle user registration
-// ============================================
 async function handleRegister() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
@@ -149,9 +126,6 @@ async function handleRegister() {
     }
 }
 
-// ============================================
-// AUTH: Handle user login
-// ============================================
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -180,47 +154,35 @@ async function handleLogin() {
     }
 }
 
-// ============================================
-// AUTH: Handle logout
-// ============================================
 async function handleLogout() {
     try {
         await fetch('/api/logout', { method: 'POST' });
-    } catch (err) { /* ignore */ }
-    
+    } catch (err) { }
+
     currentUser = null;
-    
-    // Set flag so "Welcome Back," title will show on returning login screen
+
     localStorage.setItem('hasLoggedOut', 'true');
     updateWelcomeBackBanner();
 
-    // Show auth page, hide app
     document.getElementById('authPage').classList.remove('hidden');
     document.getElementById('appLayout').classList.add('hidden');
     showToast('Logged out successfully', 'info');
 }
 
-// ============================================
-// APP: Enter main application after login
-// ============================================
 function enterApp() {
     document.getElementById('authPage').classList.add('hidden');
     document.getElementById('appLayout').classList.remove('hidden');
     showPage('dashboard');
 }
 
-// ============================================
-// NAVIGATION: SPA-style page switching
-// ============================================
 function showPage(pageName) {
     document.querySelectorAll('.main-content > section').forEach(section => {
         section.classList.add('hidden');
     });
-    
+
     const target = document.getElementById('page-' + pageName);
     if (target) target.classList.remove('hidden');
 
-    // Update top navbar tab active state
     document.querySelectorAll('.nav-tab').forEach(item => {
         item.classList.toggle('active', item.dataset.page === pageName);
     });
@@ -228,11 +190,6 @@ function showPage(pageName) {
     if (pageName === 'profile') loadProfile();
 }
 
-// (Mobile sidebar toggle removed - using top navbar now)
-
-// ============================================
-// UPLOAD: File selection
-// ============================================
 function onFileSelect(event) {
     const file = event.target.files[0];
     const label = document.getElementById('selectedFile') || document.getElementById('selectedFileNav');
@@ -241,9 +198,6 @@ function onFileSelect(event) {
     }
 }
 
-// ============================================
-// UPLOAD: Upload PDF and get summary
-// ============================================
 async function handleUpload() {
     const fileInput = document.getElementById('pdfInput') || document.getElementById('pdfInputNav');
     const file = fileInput ? fileInput.files[0] : null;
@@ -287,9 +241,6 @@ async function handleUpload() {
     }
 }
 
-// ============================================
-// UPLOAD: Display summary
-// ============================================
 function displaySummary(data) {
     const container = document.getElementById('uploadResults');
     if (!container) return;
@@ -309,9 +260,6 @@ function displaySummary(data) {
     `;
 }
 
-// ============================================
-// SEARCH: Search ArXiv
-// ============================================
 async function handleSearch() {
     const queryEl = document.getElementById('searchQuery') || document.getElementById('searchQueryNav');
     const query = queryEl ? queryEl.value.trim() : '';
@@ -347,9 +295,6 @@ async function handleSearch() {
     }
 }
 
-// ============================================
-// SEARCH: Display results
-// ============================================
 function displaySearchResults(results) {
     const container = document.getElementById('searchResults');
     if (!container) return;
@@ -367,9 +312,6 @@ function displaySearchResults(results) {
     `).join('');
 }
 
-// ============================================
-// ANALYZER: Analyze startup idea
-// ============================================
 async function handleAnalyze() {
     const ideaEl = document.getElementById('ideaInput') || document.getElementById('ideaInputNav');
     const idea = ideaEl ? ideaEl.value.trim() : '';
@@ -407,20 +349,15 @@ async function handleAnalyze() {
     }
 }
 
-// ============================================
-// ANALYZER: Display results with percentage metrics
-// ============================================
 function displayAnalysis(data) {
     const container = document.getElementById('analyzerResults');
-    
-    // Calculate percentages
+
     const innovationPct = Math.min(100, Math.max(0, Math.round((data.innovation_score || 0) * 10)));
     const feasibilityPct = Math.min(100, Math.max(0, Math.round((data.feasibility_score || 0) * 10)));
     const marketPct = Math.min(100, Math.max(0, Math.round((data.market_score || 0) * 10)));
     const overallPct = Math.min(100, Math.max(0, Math.round((data.overall_score || 0) * 10)));
 
     container.innerHTML = `
-        <!-- Percentage Score Cards -->
         <div class="score-grid">
             <div class="score-card primary">
                 <div class="score-value">${overallPct}%</div>
@@ -444,10 +381,9 @@ function displayAnalysis(data) {
             </div>
         </div>
 
-        <!-- Interactive Percentage Progress Bars -->
         <div class="percentage-metrics-container">
             <h3 style="margin-bottom:16px; font-size:1.05rem; color:var(--matcha-dark);">📈 Viability Percentage Breakdown</h3>
-            
+
             <div class="percentage-item">
                 <div class="percentage-header">
                     <span>🚀 Overall Viability Rating</span>
@@ -504,9 +440,6 @@ function displayAnalysis(data) {
     `;
 }
 
-// ============================================
-// PROFILE: Load user info and history with full paper summaries
-// ============================================
 async function loadProfile() {
     if (currentUser) {
         const initials = currentUser.name.split(' ').map(w => w[0]).join('').toUpperCase();
@@ -532,8 +465,7 @@ async function loadProfile() {
             container.innerHTML = '<p style="color:var(--text-muted);">No papers uploaded yet.</p>';
             return;
         }
-        
-        // Render each uploaded paper with summary, key points, and technical terms
+
         container.innerHTML = data.papers.map(paper => {
             const keyPointsHtml = (paper.key_points && paper.key_points.length > 0)
                 ? `<div class="summary-section mt-12">
@@ -565,13 +497,9 @@ async function loadProfile() {
             `;
         }).join('');
     } catch (err) {
-        // Silently fail
     }
 }
 
-// ============================================
-// AUTH CHECK: On page load
-// ============================================
 async function checkAuth() {
     updateWelcomeBackBanner();
     try {
@@ -582,19 +510,12 @@ async function checkAuth() {
             enterApp();
         }
     } catch (err) {
-        // Stay on login page
     }
 }
 
-// Run auth check on load
 checkAuth();
 
-// ============================================
-// PARALLAX SCROLL EFFECT
-// Smooth background graphics movement on scroll
-// ============================================
 window.addEventListener('scroll', function() {
-    // Database Network Background Layer Parallax Shift
     const dbBg = document.querySelector('.database-bg-layer');
     if (dbBg) {
         const rect = dbBg.getBoundingClientRect();
@@ -602,7 +523,6 @@ window.addEventListener('scroll', function() {
         dbBg.style.transform = `translateY(${speed}px)`;
     }
 
-    // Lightbulb Network Background Layer Parallax Shift
     const bulbBg = document.querySelector('.bulb-bg-layer');
     if (bulbBg) {
         const rect = bulbBg.getBoundingClientRect();

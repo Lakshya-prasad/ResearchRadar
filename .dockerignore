@@ -2,4 +2,12 @@ venv/
 __pycache__/
 *.pyc
 .git
+.github
 uploads/
+database.db
+*.db
+.env
+.env.*
+*.md
+k8s/
+go.mod

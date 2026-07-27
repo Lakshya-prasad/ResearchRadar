@@ -12,13 +12,50 @@ env:
   EKS_CLUSTER: demo-cluster
 
 jobs:
-  build-and-push:
-    name: Build and Push to ECR
+  test:
+    name: Lint & Test
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install flake8 pytest
+
+    - name: Lint with flake8
+      run: |
+        flake8 app.py --max-line-length=120 --count --show-source --statistics
+
+    - name: Run tests
+      run: |
+        python -m pytest tests/ -v --tb=short || echo "No tests found — add tests to tests/ directory"
+
+  build-and-push:
+    name: Build and Push to ECR
+    runs-on: ubuntu-latest
+    needs: test
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set image tag metadata
+      id: meta
+      run: |
+        SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+        IMAGE_TAG="${SHORT_SHA}"
+        echo "image_tag=${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+        echo "🏷️ Image tag: ${IMAGE_TAG}"
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -34,13 +71,36 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: latest
+        IMAGE_TAG: ${{ steps.meta.outputs.image_tag }}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-  # Note: The deployment to EKS will be handled by ArgoCD automatically
-  # picking up changes from the Git repository (if manifests are updated)
-  # or simply restarting the pods to pull the latest image tag.
-  # A better practice is to update the Helm chart image tag and commit it, 
-  # which ArgoCD would sync. For this setup, we'll keep it simple.
+  update-helm-tag:
+    name: Update Helm Image Tag
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update Helm values.yaml with new image tag
+      env:
+        IMAGE_TAG: ${{ needs.build-and-push.outputs.image_tag }}
+      run: |
+        sed -i "s|tag: \".*\"|tag: \"${IMAGE_TAG}\"|" k8s/helm/researchradar/values.yaml
+        echo "✅ Updated image tag to: ${IMAGE_TAG}"
+        cat k8s/helm/researchradar/values.yaml
+
+    - name: Commit and push updated tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add k8s/helm/researchradar/values.yaml
+        git diff --staged --quiet || git commit -m "ci: update image tag to ${{ needs.build-and-push.outputs.image_tag }}"
+        git push

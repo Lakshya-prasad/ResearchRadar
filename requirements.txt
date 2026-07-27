@@ -1,5 +1,5 @@
-﻿# ============================================
-# ResearchMind AI — Python Dependencies
+# ============================================
+# ResearchRadar — Python Dependencies
 # ============================================
 flask
 flask-cors
@@ -7,5 +7,4 @@ PyPDF2
 python-dotenv
 requests
 groq
-
-
+gunicorn

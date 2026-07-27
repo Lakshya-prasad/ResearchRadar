@@ -1,8 +1,8 @@
 replicaCount: 2
 
 image:
-  repository: 794562053920.dkr.ecr.us-east-1.amazonaws.com/researchradar
-  pullPolicy: IfNotPresent
+  repository: researchradar
+  pullPolicy: Never
   tag: "latest"
 
 service:
@@ -10,14 +10,14 @@ service:
   port: 80
 
 ingress:
-  enabled: true
+  enabled: false
   className: "nginx"
   host: researchradar.local
   annotations: {}
 
 env:
-  GROQ_API_KEY: ""
-  SECRET_KEY: ""
+  GROQ_API_KEY: "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"
+  SECRET_KEY: "dev-secret-key-researchradar-2026"
 
 autoscaling:
   enabled: true
