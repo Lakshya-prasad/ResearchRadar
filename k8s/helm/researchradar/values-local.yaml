@@ -16,7 +16,7 @@ ingress:
   annotations: {}
 
 env:
-  GROQ_API_KEY: "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"
+  GROQ_API_KEY: "your-groq-api-key-here"
   SECRET_KEY: "dev-secret-key-researchradar-2026"
 
 autoscaling:

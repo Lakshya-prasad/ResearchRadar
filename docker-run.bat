@@ -5,7 +5,7 @@ REM ============================================
 REM Usage: docker-run.bat [GROQ_API_KEY]
 REM
 REM Example:
-REM   docker-run.bat gsk_abc123xyz
+REM   docker-run.bat your_groq_api_key
 REM   docker-run.bat                  (runs without AI features)
 REM ============================================
 

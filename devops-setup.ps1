@@ -122,8 +122,9 @@ Write-Host "  [OK] Image built: researchradar:latest" -ForegroundColor Green
 Write-Step "2" "2" "Testing standalone container..."
 try { docker stop rr-test 2>&1 | Out-Null } catch {}
 try { docker rm rr-test 2>&1 | Out-Null } catch {}
+$groqKey = if ($env:GROQ_API_KEY) { $env:GROQ_API_KEY } else { "your-groq-api-key-here" }
 docker run -d --name rr-test -p 5000:5000 `
-    -e GROQ_API_KEY=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 `
+    -e GROQ_API_KEY=$groqKey `
     -e SECRET_KEY=dev-secret-2026 `
     researchradar:latest
 
