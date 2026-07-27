@@ -1,51 +1,82 @@
-# 📡 ResearchRadar — Research Paper Assistant
+# 📡 ResearchRadar — Full DevOps & GitOps Pipeline
 
-A full-stack web application that helps students and researchers **understand research papers**, **discover literature**, and **evaluate startup ideas** — all powered by AI.
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Helm](https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white)
+![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Python](https://img.shields.io/badge/Python_3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-Built as a college project by **Lakshya Prasad** (Computer Science & Engineering).
+A production-grade, Cloud-Native **DevOps & GitOps Infrastructure** hosting **ResearchRadar** — an AI-powered research paper synthesis and literature discovery application.
 
----
-
-## ✨ Features
-
-### 🔬 PDF Paper Summarizer
-Upload any research paper PDF and get an AI-generated structured analysis:
-- **Paper Summary** — Clear 2–3 paragraph overview
-- **Key Points & Contributions** — 5–7 core findings
-- **Technical Terms** — Important jargon with plain-English definitions
-
-### 🔍 ArXiv Literature Search
-Search the global ArXiv database in real-time:
-- Query by keywords or research domain
-- View paper titles, authors, and truncated abstracts
-- Direct links to full papers on ArXiv
-
-### 💡 Startup Idea Analyzer
-Evaluate any research-based idea or startup concept with a multi-dimensional AI scorecard:
-- **Innovation Index** (0–10)
-- **Technical Feasibility** (0–10)
-- **Market Potential** (0–10)
-- **Overall Viability** (0–10)
-- Actionable strategic suggestions
-
-### 👤 User Profile & Research Vault
-- Secure account registration & login
-- Persistent history of all analyzed papers with full summaries
-- Personal research vault stored in SQLite
+Developed by **Lakshya Prasad** (Computer Science & Engineering).
 
 ---
 
-## 🛠️ Tech Stack
+## 🏗️ DevOps & GitOps Architecture
 
-| Layer | Technology |
-|-------|-----------|
-| **Backend** | Python, Flask |
-| **Frontend** | HTML, CSS (vanilla), JavaScript |
-| **Database** | SQLite |
-| **AI/LLM** | OpenAI-compatible API (GPT-4o-mini, Groq, etc.) |
-| **PDF Parsing** | PyPDF2 |
-| **Paper Search** | ArXiv REST API (Atom XML) |
-| **Auth** | Flask sessions + Werkzeug password hashing |
+```
+                      +-------------------------------------------------+
+                      |                GitHub Repository                |
+                      |    (Lakshya-prasad/ResearchRadar - main)        |
+                      +-----------------------+-------------------------+
+                                              |
+                          1. git push to main |
+                                              v
+                      +-------------------------------------------------+
+                      |                 GitHub Actions                  |
+                      |           (.github/workflows/ci.yml)            |
+                      +-----------------------+-------------------------+
+                                              |
+     +----------------------------------------+----------------------------------------+
+     |                                        |                                        |
+     v                                        v                                        v
+ [ Stage 1: Test ]              [ Stage 2: Build & Push ]               [ Stage 3: GitOps Update ]
+- Python dependencies          - Build Docker Image                    - Update Helm image tag
+- flake8 linting               - Push to AWS ECR / Registry              in values.yaml
+- pytest unit tests                                                    - Commit & push back to GitHub
+                                                                                       |
+                                                                                       v
+                                                                       +---------------+---------------+
+                                                                       |        ArgoCD Engine          |
+                                                                       |   (Running in Minikube / K8s) |
+                                                                       +---------------+---------------+
+                                                                                       |
+                                                                        4. Auto-syncs cluster state
+                                                                                       |
+                                                                                       v
+                                                                       +---------------+---------------+
+                                                                       |       Kubernetes Cluster      |
+                                                                       |   (Pods / Helm Deployment)    |
+                                                                       +---------------+---------------+
+```
+
+---
+
+## 🌟 Key DevOps & Cloud Native Features
+
+### 🐳 Containerization & Optimization
+* **Multi-Stage Dockerfile**: Lightweight `python:3.11-slim` base image.
+* **Security & Non-Root Execution**: Runs under a dedicated, unprivileged `appuser`.
+* **Health Checks**: Automated HTTP container healthchecks.
+
+### ☸️ Kubernetes Orchestration
+* **High Availability**: Multi-replica pod deployment with rolling updates.
+* **Self-Healing Probes**: Configured Liveness & Readiness probes for zero-downtime health monitoring.
+* **Horizontal Pod Autoscaling (HPA)**: Dynamic scaling (2 to 5 pods) based on CPU utilization metrics.
+* **Resource Limits & Requests**: Memory and CPU allocations to protect cluster capacity.
+
+### ☸️ Helm 3 Package Management
+* Modular chart template structure (`k8s/helm/researchradar`).
+* Environment-based configuration separation (`values.yaml` for production vs `values-local.yaml` for local Minikube).
+
+### 🔄 ArgoCD Continuous Delivery (GitOps)
+* Declarative GitOps Application manifest (`argocd-app.yaml`).
+* Automated sync, self-healing, and drift detection directly from GitHub repository changes.
+
+### ⚡ Automated PowerShell Pipeline Script (`devops-setup.ps1`)
+* **Self-Healing PATH Resolution**: Auto-detects and injects Docker, Minikube, `kubectl`, and `helm` paths dynamically.
+* **End-to-End Automation**: Builds container image, spins up Minikube, loads images, installs Helm chart, deploys ArgoCD, and retrieves admin credentials automatically.
 
 ---
 
@@ -53,111 +84,82 @@ Evaluate any research-based idea or startup concept with a multi-dimensional AI 
 
 ```
 ResearchRadar/
-├── app.py                  # Flask server — all API routes & AI logic
-├── database.db             # SQLite database (auto-created)
-├── requirements.txt        # Python dependencies
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # GitHub Actions CI/CD pipeline
+├── k8s/
+│   ├── helm/
+│   │   └── researchradar/          # Helm 3 Chart templates & values
+│   └── manifests/                  # Kubernetes & ArgoCD Application manifests
+├── devops-setup.ps1                # Automated full DevOps pipeline script
+├── Dockerfile                      # Production container spec
+├── app.py                          # Flask backend API
+├── requirements.txt                # Python dependencies
 ├── static/
-│   ├── index.html          # Single-page frontend (SPA)
-│   ├── css/
-│   │   └── style.css       # Full stylesheet (warm light theme)
-│   ├── js/
-│   │   └── app.js          # Frontend logic, API calls, UI rendering
-│   └── images/
-│       └── login_bg.jpg    # Login page background image
-└── uploads/                # Uploaded PDF files (per-user)
+│   ├── index.html                  # Single-page application frontend
+│   ├── css/style.css               # Application stylesheet
+│   └── js/app.js                   # Client-side JavaScript
+└── tests/
+    └── test_app.py                 # PyTest unit testing suite
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start (Automated One-Click Setup)
 
 ### Prerequisites
-- **Python 3.8+**
-- An **OpenAI-compatible API key** (OpenAI, Groq, Together AI, etc.)
+* Windows 10/11 with **PowerShell** (Run as Administrator)
+* **Docker Desktop** installed and running
 
-### 1. Clone the repository
+### 1. Run the Full DevOps Pipeline Script
 
-```bash
-git clone https://github.com/Lakshya-prasad/ResearchRadar.git
-cd ResearchRadar
+```powershell
+cd C:\Users\ACER\ResearchRadar
+.\devops-setup.ps1
 ```
 
-### 2. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configure environment variables
-
-Copy the example file and fill in your API key:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```env
-OPENAI_API_KEY=your-api-key-here
-OPENAI_BASE_URL=https://api.openai.com/v1
-OPENAI_MODEL=gpt-4o-mini
-SECRET_KEY=change-this-to-a-random-string
-```
-
-> **Using Groq (free tier)?** Set `OPENAI_BASE_URL=https://api.groq.com/openai/v1` and `OPENAI_MODEL=llama-3.3-70b-versatile`
-
-### 4. Run the server
-
-```bash
-python app.py
-```
-
-Open **http://localhost:5000** in your browser.
+This single command will:
+1. Verify & auto-configure PATH for Docker, Minikube, `kubectl`, and Helm.
+2. Build the Docker image `researchradar:latest`.
+3. Start a local Minikube Kubernetes cluster.
+4. Load the image into Minikube and deploy via Helm.
+5. Deploy ArgoCD into the `argocd` namespace and display the initial admin password.
 
 ---
 
-## 📡 API Endpoints
+## 🌐 Accessing Deployed Services
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/` | Serve the SPA frontend |
-| `POST` | `/api/register` | Create a new user account |
-| `POST` | `/api/login` | Authenticate and start session |
-| `POST` | `/api/logout` | Clear user session |
-| `GET` | `/api/me` | Get current logged-in user info |
-| `POST` | `/api/upload` | Upload PDF and get AI summary |
-| `GET` | `/api/search?q=...` | Search ArXiv for papers |
-| `POST` | `/api/analyze` | Analyze a startup/research idea |
-| `GET` | `/api/papers` | Get user's uploaded paper history |
+Once the script completes, open new terminal windows for port forwarding:
 
----
+### 1. ResearchRadar Application
+```powershell
+kubectl port-forward svc/researchradar-svc 5000:80
+```
+👉 Open in browser: **[http://localhost:5000](http://localhost:5000)**
 
-## 🎨 Design
-
-- **Theme:** Warm light mode — Beige, Matcha Green, Soft Red palette
-- **Typography:** Inter + Poppins (Google Fonts)
-- **Layout:** Single-page app with top navbar navigation
-- **Hero Section:** Interactive animated character showcase with 4 SVG characters
-- **Section Backgrounds:** Parallax SVG graphics with scroll-based animation
-- **Login Page:** Split layout with background image, glassmorphism form
+### 2. ArgoCD Dashboard
+```powershell
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+```
+👉 Open in browser: **[https://localhost:8080](https://localhost:8080)**  
+* **Username:** `admin`  
+* **Password:** *(Retrieved automatically by `devops-setup.ps1`)*
 
 ---
 
-## 📝 How It Works
+## 🛠️ Management & Monitoring Commands
 
-1. **Register/Login** → Creates a session-based account stored in SQLite
-2. **Upload a PDF** → PyPDF2 extracts text → sent to LLM API → structured JSON response rendered in the UI
-3. **Search Papers** → Query hits ArXiv REST API → Atom XML parsed → results displayed as cards
-4. **Analyze Idea** → Description sent to LLM API → multi-factor scoring returned as JSON → visualized with progress bars and score cards
-5. **Profile** → Fetches all previously analyzed papers from the database with full summaries
+```powershell
+kubectl get pods                     # Check application pod status
+kubectl get pods -n argocd           # Check ArgoCD pod status
+kubectl logs -f deploy/researchradar # Stream application logs
+kubectl get hpa                     # View Horizontal Pod Autoscaler status
+minikube dashboard                   # Launch Kubernetes Web Dashboard
+minikube stop                        # Stop local Kubernetes cluster
+```
 
 ---
 
 ## 📄 License
 
-This project was built for academic purposes as a college project.
-
----
-
-> **ResearchRadar** — *Understand Research. Build Innovation.*
+Developed by **Lakshya Prasad** for academic & DevOps project demonstrations.
