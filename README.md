@@ -1,6 +1,6 @@
 # 📡 ResearchRadar — Research Paper Assistant
 
-A full-stack web application that helps students and researchers **understand research papers**, **discover literature**, and **evaluate startup ideas** — all powered by AI.
+A full-stack web application with devops implementation that helps students and researchers **understand research papers**, **discover literature**, and **evaluate startup ideas** — all powered by AI.
 
 Built as a college project by **Lakshya Prasad** (Computer Science & Engineering).
 
